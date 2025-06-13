@@ -1,18 +1,18 @@
 # 🚗 CarProject
 
-CarProject is a Django REST API for managing car records. It allows users to create, read, update, and delete car entries, as well as filter and search cars by various attributes.
+CarProject is a Django REST API for managing cars, their engines, manufacturers, and features. It demonstrates the use of one-to-one, one-to-many, and many-to-many relationships in Django models, and exposes endpoints for CRUD operations and listing related data.
 
 ---
 
 ## ✨ Features
 
-- List all cars with optional filtering by company or fuel type
-- Retrieve details of a specific car by ID
-- Filter cars by fuel type or price
-- Add new cars
-- Update existing car details (full or partial)
-- Delete cars
-- RESTful API endpoints using Django REST Framework
+- List, create, update, and delete cars
+- List all manufacturers, features, and engines
+- Filter cars by company or fuel type
+- Demonstrates:
+  - **One-to-One**: Each car has one engine
+  - **One-to-Many**: Each car is made by one manufacturer, but a manufacturer can make many cars
+  - **Many-to-Many**: Each car can have multiple features, and each feature can belong to multiple cars
 
 ---
 
@@ -41,22 +41,32 @@ carProject/
 └── requirements.txt
 ```
 
-- **carApp/**: Contains the main app logic (models, serializers, views, URLs).
-- **carProject/**: Django project configuration (settings, URLs, WSGI/ASGI).
-- **db.sqlite3**: SQLite database file.
-- **manage.py**: Django management script.
-- **requirements.txt**: Python dependencies.
+---
+
+## 🗃️ Models & Relationships
+
+### `Engine`
+- `engine_cc`: Integer (engine capacity)
+- `engine_type`: String (type of engine)
+
+### `Manufacturer`
+- `country`: String (manufacturer's country)
+
+### `Feature`
+- `name`: String (feature name)
+
+### `Cars`
+- `company`: String (car company)
+- `model`: String (car model)
+- `fuel`: String (fuel type)
+- `price`: String (price)
+- `engine`: **OneToOneField** to `Engine` (each car has one engine)
+- `manufacturer`: **ForeignKey** to `Manufacturer` (each car has one manufacturer, a manufacturer can have many cars)
+- `features`: **ManyToManyField** to `Feature` (each car can have multiple features, each feature can belong to multiple cars)
 
 ---
 
 ## 🚀 Setup Instructions
-
-### Prerequisites
-
-- Python 3.8+
-- pip
-
-### Installation
 
 1. **Clone the repository:**
     ```sh
@@ -67,10 +77,7 @@ carProject/
 2. **Create and activate a virtual environment:**
     ```sh
     python -m venv .env
-    # On Windows:
     .env\Scripts\activate
-    # On Unix/Mac:
-    source .env/bin/activate
     ```
 
 3. **Install dependencies:**
@@ -83,7 +90,7 @@ carProject/
     python manage.py migrate
     ```
 
-5. **Create a superuser (optional, for admin access):**
+5. **Create a superuser (optional):**
     ```sh
     python manage.py createsuperuser
     ```
@@ -93,41 +100,38 @@ carProject/
     python manage.py runserver
     ```
 
-7. **Access the API:**
-    - API root: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-    - Admin: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
-
 ---
 
 ## 📚 API Endpoints
 
-| Method | Endpoint                   | Description                        | Body/Params                |
-|--------|----------------------------|------------------------------------|----------------------------|
-| GET    | `/get_all_cars/`           | List all cars, filter by company or fuel | `company`, `fuel` (query)  |
-| GET    | `/get_car/<int:id>/`       | Get details of a specific car      |                            |
-| GET    | `/filter_car/`             | Filter cars by fuel or price       | `fuel`, `price` (query)    |
-| POST   | `/post_car/`               | Add a new car                      | Car fields (JSON)          |
-| PUT    | `/update_car/<int:id>/`    | Update a car (full/partial)        | Car fields (JSON)          |
-| PATCH  | `/update_car/<int:id>/`    | Update a car (partial)             | Car fields (JSON)          |
-| DELETE | `/delete_car/<int:id>/`    | Delete a car                       |                            |
+| Method | Endpoint                   | Description                        |
+|--------|----------------------------|------------------------------------|
+| GET    | `/get_all_cars/`           | List all cars, filter by company or fuel |
+| GET    | `/get_car/<id>/`           | Get details of a specific car      |
+| POST   | `/post_car/`               | Add a new car                      |
+| PUT/PATCH | `/update_car/<id>/`     | Update a car (full/partial)        |
+| DELETE | `/delete_car/<id>/`        | Delete a car                       |
+| GET    | `/get_manufacturer/`       | List all manufacturers             |
+| GET    | `/get_feature/`            | List all features                  |
+| GET    | `/get_engine/`             | List all engines                   |
 
 ---
 
-## ⚙️ Project Configuration
+## 🛠️ Views Overview
 
-- **Database:** SQLite (default, see [`carProject/settings.py`](carProject/carProject/settings.py))
-- **Installed apps:** `rest_framework`, `carApp`
-- **Main URLs:** [`carProject/urls.py`](carProject/carProject/urls.py), [`carApp/urls.py`](carProject/carApp/urls.py)
-- **WSGI/ASGI entrypoints:** [`wsgi.py`](carProject/carProject/wsgi.py), [`asgi.py`](carProject/carProject/asgi.py)
+- **Car Views**: CRUD operations for cars, including filtering by company or fuel.
+- **Manufacturer/Feature/Engine Views**: List all manufacturers, features, or engines.
+- **Serializers**: Handle nested and related data for all models.
 
 ---
 
-## 🛠️ Customization
+## 🧪 Testing
 
-- **Add new fields to the car model:**  
-  Edit [`models.py`](carProject/carApp/models.py) and update [`serializer.py`](carProject/carApp/serializer.py).
-- **Add authentication:**  
-  Configure Django REST Framework permissions in [`settings.py`](carProject/carProject/settings.py).
+To run tests (if implemented):
+
+```sh
+python manage.py test
+```
 
 ---
 
@@ -137,4 +141,4 @@ This project is for educational purposes.
 
 ---
 
-**Developed with Django and Django REST Framework.**
+**Developed with Django and Django
