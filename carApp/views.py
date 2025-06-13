@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from .serializer import CarsSerializer
+from .serializer import *
 
 # Create your views here.
 @api_view(['GET'])
@@ -30,27 +30,13 @@ def get_car(request, id):
     except Cars.DoesNotExist:
         return Response({'error': 'Car not found'}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
-def filter_car(request):
-    fuel = request.query_params.get('fuel', None)
-    price = request.query_params.get('price', None)
-    
-    if fuel:
-        cars = Cars.objects.filter(fuel=fuel)
-    elif price:
-        cars = Cars.objects.filter(price__lte=price)
-    else:
-        cars = Cars.objects.all()
-    
-    serializer = CarsSerializer(cars, many=True)
-    return Response({'cars': serializer.data}, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def post_car(request):
     data = request.data
-    serializer = CarsSerializer(data=data)
+    is_many = isinstance(data, list)
+
+    serializer = CarsSerializer(data=data, many=is_many)
     if serializer.is_valid():
         serializer.save()
         return Response({'message': 'Car posted successfully', 'car': serializer.data}, status=status.HTTP_201_CREATED)
@@ -79,6 +65,24 @@ def delete_car(request, id):
         return Response({'message': 'Car deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     except Cars.DoesNotExist:
         return Response({'error': 'Car not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_manufacturer(request):
+    manufacturer = Manufacturer.objects.all()
+    serializer = ManufacturerSerializer(manufacturer, many=True)
+    return Response({'manufacturer': serializer.data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_feature(request):
+    feature = Feature.objects.all()
+    serializer = FeatureSerializer(feature, many=True)
+    return Response({'feature': serializer.data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_engine(request):
+    engine = Engine.objects.all()
+    serializer = EngineSerializer(engine, many=True)
+    return Response({'engine': serializer.data}, status=status.HTTP_200_OK)
 
 
 
